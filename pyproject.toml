@@ -10,6 +10,8 @@ requires-python = ">=3.15"
 dependencies = [
     "langchain>=1.4.9",
     "langchain-ollama>=1.1.0",
+    "langgraph-cli[inmem]>=0.4.42",
+    "langsmith>=0.14.17",
     "python-dotenv>=1.2.4",
     "tavily-python>=0.8.5",
 ]

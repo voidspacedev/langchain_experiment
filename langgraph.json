@@ -1,0 +1,7 @@
+{
+    "dependencies": ["."],
+    "graphs": {
+        "agent": "./src/langchainexperiment/app.py:agent"
+    },
+    "env": ".env"
+}

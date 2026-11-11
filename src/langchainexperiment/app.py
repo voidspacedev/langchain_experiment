@@ -5,18 +5,8 @@ from langchainexperiment.tools.search_tool import search_tool
 from langgraph.checkpoint.memory import InMemorySaver
 
 
-model = ChatOllama(
-    model="qwen3.5:4b",
-    temperature=0,
-    
-)
-
-agent = create_agent(
-    model=model,
-    tools=[search_tool],
-    checkpointer=InMemorySaver(),
-    system_prompt="""
-    You are a chef with 10 years of cooking experience.
+SYSTEM_PROMPT = """
+You are a chef with 10 years of cooking experience.
 
         Your responsibilities:
         1. Analyze the ingredients provided by the user.
@@ -37,25 +27,37 @@ agent = create_agent(
         Only use ingredients provided by the user.
         Mention any additional ingredients separately.
         Never invent search results.  
-        """
+"""
+
+model = ChatOllama(model="qwen3.5:4b", temperature=0)
+
+# Exported for langgraph.json — no checkpointer; the server provides persistence
+agent = create_agent(
+    model=model,
+    tools=[search_tool],
+    system_prompt=SYSTEM_PROMPT,
 )
 
-thread_config: RunnableConfig = {"configurable": {"thread_id": "1"}}
 
-response= agent.invoke(
-    {"messages": [
-        {
-            "role": "user",
-            "content": """I have chicken, rice, onions, salt, red chilli powder, 
-                        ginger garlic paste, garam masala, 
-                        water, turmeric powder and spices."""
-        }
-    ]},config=thread_config,)
-print(response["messages"][-1].content)
 
-response2 = agent.invoke(
+    
+local_agent = create_agent(
+    model=model,
+    tools=[search_tool],
+    system_prompt=SYSTEM_PROMPT,
+    checkpointer=InMemorySaver(),
+)
+cfg: RunnableConfig = {"configurable": {"thread_id": "1"}}
+
+r1 = local_agent.invoke(
+    {"messages": [{"role": "user", "content": "I have chicken, rice, onions, salt, "
+        "red chilli powder, ginger garlic paste, garam masala, water, turmeric powder and spices."}]},
+    config=cfg,
+)
+print(r1["messages"][-1].content)
+
+r2 = local_agent.invoke(
     {"messages": [{"role": "user", "content": "Can you make it spicier?"}]},
-    config=thread_config,
+    config=cfg,
 )
-
-print(response2["messages"][-1].content)
+print(r2["messages"][-1].content)

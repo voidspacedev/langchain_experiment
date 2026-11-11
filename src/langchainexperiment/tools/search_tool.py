@@ -1,9 +1,11 @@
 from langchain.tools import tool
 from tavily import TavilyClient
 from langchainexperiment.util.get_env_var import get_env_var
+from langsmith import traceable
 
 
 @tool
+@traceable
 def search_tool(query:str) -> dict:
     """
     Search the internet for information related to the user's query.
